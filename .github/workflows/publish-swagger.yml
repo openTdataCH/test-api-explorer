@@ -23,13 +23,12 @@ jobs:
       - name: Build sites
         env:
           # base URLs per API
-          API1_BASE_URL: ${{ secrets.API1_BASE_URL }}
-          API2_BASE_URL: ${{ secrets.API2_BASE_URL }}
+          API1_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API2_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API3_BASE_URL: ${{ secrets.API_BASE_URL }}
           
           # header names
           API_KEY_HEADER_NAME: ${{ secrets.API_KEY_HEADER_NAME }}
-          API1_API_KEY_HEADER_NAME: ${{ secrets.API1_API_KEY_HEADER_NAME }}
-          API2_API_KEY_HEADER_NAME: ${{ secrets.API2_API_KEY_HEADER_NAME }}
         run: |
           set -euo pipefail
           mkdir -p dist
