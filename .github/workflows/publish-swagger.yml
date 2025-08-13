@@ -1,4 +1,4 @@
-name: Build & Publish Swagger UI Docs
+name: Build & Publish Swagger UI (multi-apis)
 
 on:
   push:
@@ -16,44 +16,56 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Tools
+        run: sudo apt-get update && sudo apt-get install -y gettext-base
 
-      - name: Install tooling
-        run: |
-          npm i --no-save swagger-ui-dist
-          sudo apt-get update
-          sudo apt-get install -y gettext-base
-
-      # Inject only the variables you expect (prevents messing up $ref)
-      - name: Substitute env into OpenAPI
+      # Load repo secrets
+      - name: Build sites
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
-          API_KEY_HEADER_NAME: ${{ secrets.API_KEY_HEADER_NAME }}
-        run: |
-          VARS='${API_BASE_URL} ${API_KEY_HEADER_NAME}'
-          envsubst "$VARS" < openapi/openapi.template.yaml > openapi.yaml
-          echo "::add-mask::${API_BASE_URL}"
-          echo "::add-mask::${API_KEY_HEADER_NAME}"
-
-      - name: Build static Swagger UI site
-        run: |
-          mkdir -p dist
-          # Copy UI assets (including .map to avoid 404 in DevTools)
-          cp node_modules/swagger-ui-dist/swagger-ui.css dist/
-          cp node_modules/swagger-ui-dist/swagger-ui-bundle.js dist/
-          cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js dist/
-          cp node_modules/swagger-ui-dist/*bundle.js.map dist/ || true
+          # base URLs per API
+          API1_BASE_URL: ${{ secrets.API1_BASE_URL }}
+          API2_BASE_URL: ${{ secrets.API2_BASE_URL }}
           
-          # copy template HTML
-          cp site/index.html dist/
+          # header names
+          API_KEY_HEADER_NAME: ${{ secrets.API_KEY_HEADER_NAME }}
+          API1_API_KEY_HEADER_NAME: ${{ secrets.API1_API_KEY_HEADER_NAME }}
+          API2_API_KEY_HEADER_NAME: ${{ secrets.API2_API_KEY_HEADER_NAME }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
 
-          # copy resolved spec
-          cp openapi.yaml dist/
+          for API in api1 api2; do
+            echo "==> Building $API"
+            mkdir -p "dist/$API"
 
-          # avoid Jekyll quirks on Pages
+            # pick values for this API
+            case "$API" in
+              api1)
+                API_BASE_URL="$API1_BASE_URL"
+                API_HEADER_NAME="${API1_API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
+                ;;
+              api2)
+                API_BASE_URL="$API2_BASE_URL"
+                API_HEADER_NAME="${API2_API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
+                ;;
+            esac
+
+            # mask in logs
+            echo "::add-mask::${API_BASE_URL}"
+            echo "::add-mask::${API_HEADER_NAME}"
+
+            # substitute placeholders into the template
+            VARS='${API_BASE_URL} ${API_KEY_HEADER_NAME}'
+            API_KEY_HEADER_NAME="$API_HEADER_NAME" \
+            API_BASE_URL="$API_BASE_URL" \
+              envsubst "$VARS" < "openapi/$API/openapi.template.yaml" \
+              > "dist/$API/openapi.yaml"
+
+            # copy shared HTML
+            cp site/index.html "dist/$API/index.html"
+          done
+
+          # Jekyll can interfere with paths—disable it
           touch dist/.nojekyll
 
       - name: Upload artifact
