@@ -33,19 +33,23 @@ jobs:
           set -euo pipefail
           mkdir -p dist
 
-          for API in api1 api2; do
+          for API in formation ojp1.0 ojp2.0; do
             echo "==> Building $API"
             mkdir -p "dist/$API"
 
             # pick values for this API
             case "$API" in
-              api1)
+              formation)
                 API_BASE_URL="$API1_BASE_URL"
-                API_HEADER_NAME="${API1_API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
+                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
                 ;;
-              api2)
+              ojp1.0)
                 API_BASE_URL="$API2_BASE_URL"
-                API_HEADER_NAME="${API2_API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
+                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
+                ;;
+              ojp2.0)
+                API_BASE_URL="$API3_BASE_URL"
+                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
                 ;;
             esac
 
