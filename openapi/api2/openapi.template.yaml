@@ -1,0 +1,16 @@
+# apis/api1/openapi.template.yaml  (api2 has its own)
+openapi: 3.0.3
+info:
+  title: API 2
+  version: 1.0.0
+servers:
+  - url: "${API_BASE_URL}"        # injected at build
+paths: {}
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: "${API_KEY_HEADER_NAME}"
+security:
+  - ApiKeyAuth: []
