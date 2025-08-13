@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info:
+  title: OJP 2.0 API
+  version: 1.0.0
+servers:
+  - url: "${API_BASE_URL}"
+paths: {}
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: "${API_KEY_HEADER_NAME}"
+security:
+  - ApiKeyAuth: []
