@@ -27,7 +27,7 @@ jobs:
       - name: Build docs (ReDoc one-file HTML)
         run: |
           mkdir -p dist
-          redocly build-docs openapi.yaml -o dist/index.html
+          redocly build-docs openapi/root.yaml -o dist/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
