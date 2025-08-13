@@ -54,6 +54,8 @@ jobs:
           # copy resolved spec
           cp openapi.yaml dist/
 
+          # avoid Jekyll quirks on Pages
+          touch dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
