@@ -61,9 +61,12 @@ jobs:
               envsubst "$VARS" < "openapi/$API/openapi.template.yaml" \
               > "dist/$API/openapi.yaml"
 
-            # copy shared HTML
-            cp site/index.html "dist/$API/index.html"
+            # Swagger UI HTML for each API
+            cp site/swagger.html "dist/$API/index.html"
           done
+
+          # Root landing page (prevents 404s)
+          cp site/index.html dist/index.html
 
           # Jekyll can interfere with paths—disable it
           touch dist/.nojekyll
