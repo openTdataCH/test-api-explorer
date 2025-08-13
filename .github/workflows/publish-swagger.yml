@@ -47,37 +47,13 @@ jobs:
           cp node_modules/swagger-ui-dist/swagger-ui-bundle.js dist/
           cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js dist/
           cp node_modules/swagger-ui-dist/*bundle.js.map dist/ || true
-          # Your resolved spec
+          
+          # copy template HTML
+          cp site/index.html dist/
+
+          # copy resolved spec
           cp openapi.yaml dist/
 
-          # Minimal HTML (local assets, relative spec path works on GitHub Pages)
-          cat > dist/index.html <<'HTML'
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>API Docs</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="./swagger-ui.css">
-  <style>html,body,#swagger{height:100%;margin:0}</style>
-</head>
-<body>
-  <div id="swagger"></div>
-  <script src="./swagger-ui-bundle.js"></script>
-  <script src="./swagger-ui-standalone-preset.js"></script>
-  <script>
-    window.ui = SwaggerUIBundle({
-      url: './openapi.yaml',
-      dom_id: '#swagger',
-      deepLinking: true,
-      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-      layout: 'StandaloneLayout',
-      persistAuthorization: false
-    });
-  </script>
-</body>
-</html>
-HTML
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
