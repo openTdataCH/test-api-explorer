@@ -1,0 +1,19 @@
+{
+  "name": "api-explorer",
+  "type": "module",
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
+    "http-server": "^14.1.1",
+    "shx": "^0.3.4",
+    "swagger-ui-dist": "^5"
+  },
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build:assets": "shx mkdir -p dist/assets && shx cp node_modules/swagger-ui-dist/swagger-ui.css dist/assets/ && shx cp node_modules/swagger-ui-dist/swagger-ui-bundle.js dist/assets/ && shx cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js dist/assets/ && shx cp node_modules/swagger-ui-dist/*bundle.js.map dist/assets/ || true",
+    "build:api": "node scripts/render-openapi.mjs",
+    "build:index": "shx cp site/index.html dist/index.html && shx cp dist/index.html dist/404.html && shx touch dist/.nojekyll",
+    "build": "npm run clean && npm run build:assets && npm run build:api -- --api=formation && npm run build:api -- --api=ojp1.0 && npm run build:api -- --api=ojp2.0 && npm run build:index",
+    "serve": "http-server dist -p 8080"
+  }
+}
