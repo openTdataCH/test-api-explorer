@@ -1,15 +1,9 @@
 openapi: 3.0.3
 info:
-  title: Formation Service API
+  title: Formation Service API (Schema WIP)
   version: 1.0.0
 servers:
-  - url: "${API_BASE_URL}"
+  - url: "https://api.opentransportdata.swiss"
 paths: {}
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: "${API_KEY_HEADER_NAME}"
 security:
   - ApiKeyAuth: []
