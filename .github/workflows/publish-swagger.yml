@@ -16,62 +16,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tools
-        run: sudo apt-get update && sudo apt-get install -y gettext-base
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20           # no cache to avoid lockfile errors
 
-      # Load repo secrets
-      - name: Build sites
+      - name: Install deps
+        run: npm install
+
+      # Build API folders using your script (reads .env, .env.local, then process.env)
+      - name: Build API folders
         env:
-          # base URLs per API
-          API1_BASE_URL: ${{ secrets.API_BASE_URL }}
-          API2_BASE_URL: ${{ secrets.API_BASE_URL }}
-          API3_BASE_URL: ${{ secrets.API_BASE_URL }}
-          
-          # header names
-          API_KEY_HEADER_NAME: ${{ secrets.API_KEY_HEADER_NAME }}
+          # from repo secrets https://github.com/openTdataCH/test-api-explorer/settings/secrets/actions
+          API_KEY_FORMATION_SERVICE: ${{ secrets.API_KEY_FORMATION_SERVICE }}
+          API_KEY_OJP1: ${{ secrets.API_KEY_OJP1 }}
+          API_KEY_OJP2: ${{ secrets.API_KEY_OJP2 }}
         run: |
-          set -euo pipefail
-          mkdir -p dist
+          node scripts/render-openapi.mjs --api=formation
+          node scripts/render-openapi.mjs --api=ojp1.0
+          node scripts/render-openapi.mjs --api=ojp2.0
 
-          for API in formation ojp1.0 ojp2.0; do
-            echo "==> Building $API"
-            mkdir -p "dist/$API"
+      # Build local swagger
+      - name: Add Swagger UI assets
+        run: |
+          mkdir -p dist/assets
+          cp node_modules/swagger-ui-dist/swagger-ui.css dist/assets/
+          cp node_modules/swagger-ui-dist/swagger-ui-bundle.js dist/assets/
+          cp node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js dist/assets/
+          cp node_modules/swagger-ui-dist/*bundle.js.map dist/assets/ || true
 
-            # pick values for this API
-            case "$API" in
-              formation)
-                API_BASE_URL="$API1_BASE_URL"
-                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
-                ;;
-              ojp1.0)
-                API_BASE_URL="$API2_BASE_URL"
-                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
-                ;;
-              ojp2.0)
-                API_BASE_URL="$API3_BASE_URL"
-                API_HEADER_NAME="${API_KEY_HEADER_NAME:-${API_KEY_HEADER_NAME:-X-API-Key}}"
-                ;;
-            esac
-
-            # mask in logs
-            echo "::add-mask::${API_BASE_URL}"
-            echo "::add-mask::${API_HEADER_NAME}"
-
-            # substitute placeholders into the template
-            VARS='${API_BASE_URL} ${API_KEY_HEADER_NAME}'
-            API_KEY_HEADER_NAME="$API_HEADER_NAME" \
-            API_BASE_URL="$API_BASE_URL" \
-              envsubst "$VARS" < "openapi/$API/openapi.template.yaml" \
-              > "dist/$API/openapi.yaml"
-
-            # Swagger UI HTML for each API
-            cp site/swagger.html "dist/$API/index.html"
-          done
-
-          # Root landing page (prevents 404s)
+      # Root landing page to avoid 404 on /api-view/
+      - name: Add landing page
+        run: |
           cp site/index.html dist/index.html
-
-          # Jekyll can interfere with paths—disable it
+          cp dist/index.html dist/404.html || true
           touch dist/.nojekyll
 
       - name: Upload artifact
