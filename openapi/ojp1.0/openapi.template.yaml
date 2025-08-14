@@ -1,15 +1,124 @@
-openapi: 3.0.3
+openapi: "3.0.1"
 info:
-  title: OJP 1.0 API
-  version: 1.0.0
+  title: "Swiss OJP OpenAPI explorer"
+  version: "1.0"
+  description: |
+    This swagger introduces the list of provided services the Swiss OJP 1.0 and OJP 2.0 service. The interface follows the CEN standard interface OJP (Open API for distributed Journey Planning). For tests you need first to login with your key or this test key:
+    
+    OJP 1.0:
+          "${API_KEY}".
+    
+    You can alter the different examples provided. Some parts are commented out. You make them valid again. Probably you will need to change the value to get a useful result (e.g. set it to the current date)
+
+    We offer currently tests for the following services:
+      - OJPLocationRequest: LIR
+      - OJPTripRequest: TR
+      - OJPStopEventRequest: SER
+      - OJPTripInfoRequest: TIR
+externalDocs:
+  description: "OJP documentation"
+  url: "https://www.oev-info.ch/sites/default/files/2023-05/open_journey_planner_ojp_de_v1.pdf"
 servers:
-  - url: "${API_BASE_URL}"
-paths: {}
+  - url: "https://api.opentransportdata.swiss"
 components:
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: "${API_KEY_HEADER_NAME}"
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 security:
-  - ApiKeyAuth: []
+  - bearerAuth: []
+paths:
+  /ojp2020:
+    post:
+      summary: "OJP 1.0 acccess"
+      operationId: "OJP1.0"
+      description: "OJP is a traditional API, where the operation definitions is done in body of the post request"
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema: 
+                type: object
+                xml:
+                  name: "OJP"
+                  wrapped: true                          
+            examples:
+              exampleA:
+                summary: "LIR - Simple"
+                description: "Simple OJPLocationInformationtRequest for Bern"
+                value: |
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <OJP xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.siri.org.uk/siri" version="1.0" xmlns:ojp="http://www.vdv.de/ojp" xsi:schemaLocation="http://www.siri.org.uk/siri ../ojp-xsd-v1.0/OJP.xsd">
+                      <OJPRequest>
+                          <ServiceRequest>
+                              <RequestTimestamp>2024-06-01T11:24:34.598Z</RequestTimestamp>
+                              <RequestorRef>API-Explorer</RequestorRef>
+                              <ojp:OJPLocationInformationRequest>
+                                  <RequestTimestamp>2024-06-01T11:24:34.598Z</RequestTimestamp>
+                                  <ojp:InitialInput>
+                                      <ojp:LocationName>Bern</ojp:LocationName>
+                                  </ojp:InitialInput>
+                                  <ojp:Restrictions>
+                                      <ojp:Type>stop</ojp:Type>
+                                      <ojp:NumberOfResults>1</ojp:NumberOfResults>
+                                      <ojp:IncludePtModes>true</ojp:IncludePtModes>
+                                  </ojp:Restrictions>
+                              </ojp:OJPLocationInformationRequest>
+                          </ServiceRequest>
+                      </OJPRequest>
+                   </OJP>
+              exampleB:
+                summary: "SER - Simple"
+                description: "Simple OJPStopEventRequest for Bern"
+                value: |
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <OJP xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.siri.org.uk/siri" version="1.0" xmlns:ojp="http://www.vdv.de/ojp" xsi:schemaLocation="http://www.siri.org.uk/siri ../ojp-xsd-v1.0/OJP.xsd">
+                      <OJPRequest>
+                          <ServiceRequest>
+                              <RequestTimestamp>2024-06-01T11:16:59.475Z</RequestTimestamp>
+                              <RequestorRef>API-Explorer</RequestorRef>
+                              <ojp:OJPStopEventRequest>
+                                  <RequestTimestamp>2024-06-01T11:16:59.475Z</RequestTimestamp>
+                                  <ojp:Location>
+                                      <ojp:PlaceRef>
+                                          <StopPlaceRef>8507000</StopPlaceRef>
+                                          <ojp:LocationName>
+                                              <ojp:Text>Bern</ojp:Text>
+                                          </ojp:LocationName>
+                                      </ojp:PlaceRef>
+                                      <!-- <ojp:DepArrTime>2024-06-01T12:43:50</ojp:DepArrTime> -->
+                                  </ojp:Location>
+                                  <ojp:Params>
+                                      <ojp:OperatorFilter>
+                                          <ojp:Exclude>false</ojp:Exclude>
+                                          <ojp:OperatorRef>11</ojp:OperatorRef>
+                                      </ojp:OperatorFilter>
+                                      <ojp:NumberOfResults>1</ojp:NumberOfResults>
+                                      <ojp:StopEventType>departure</ojp:StopEventType>
+                                      <ojp:IncludePreviousCalls>true</ojp:IncludePreviousCalls>
+                                      <ojp:IncludeOnwardCalls>true</ojp:IncludeOnwardCalls>
+                                      <ojp:IncludeRealtimeData>true</ojp:IncludeRealtimeData>
+                                  </ojp:Params>
+                              </ojp:OJPStopEventRequest>
+                          </ServiceRequest>
+                      </OJPRequest>
+                  </OJP>
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema: 
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                  required:
+                    - error
+              examples:
+                exampleAX:
+                  summary: "Wrong or no key provided"
+                  description: "Get a correct key and apply it correctly."
+                  value:
+                    error: Authorization field missing
