@@ -1,6 +1,7 @@
 {
   "name": "api-explorer",
   "type": "module",
+  "version": "0.0.1",
   "devDependencies": {
     "dotenv": "16.4.5",
     "fs-extra": "11.2.0",
