@@ -34,6 +34,10 @@ for (const [k, v] of Object.entries(process.env)) {
 function resolveVar(name) {
   if (name === 'API_KEY') {
     const key = (() => {
+      if (api === 'formation') {
+        return 'API_KEY_FORMATION_SERVICE';
+      }
+
       if (api === 'ojp1.0') {
         return 'API_KEY_OJP1';
       }
