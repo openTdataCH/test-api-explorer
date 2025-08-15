@@ -67,20 +67,18 @@ function substitute(text) {
 }
 
 // 4) Paths
-const srcTemplate = path.join("openapi", api, "openapi.template.yaml");
+const srcYml = path.join("openapi", api, "openapi.template.yaml");
 const outDir = path.join("dist", api);
-const outSpec = path.join(outDir, "openapi.yaml");
-const swaggerHtmlSrc = path.join("site", "swagger.html");
-const swaggerHtmlOut = path.join(outDir, "index.html");
+const outYml = path.join(outDir, "openapi.yaml");
+const srcHtml = path.join("site", "swagger.html");
+const outHtml = path.join(outDir, "index.html");
 
 // 5) Build
 await fse.ensureDir(outDir);
 
-if (!fs.existsSync(srcTemplate)) {
-  throw new Error(`Template not found: ${srcTemplate}`);
-}
-const yaml = await fse.readFile(srcTemplate, "utf8");
-await fse.writeFile(outSpec, substitute(yaml), "utf8");
+// Spec YAML
+if (!fs.existsSync(srcYml)) throw new Error(`Template not found: ${srcYml}`);
+await fse.writeFile(outYml, substitute(await fse.readFile(srcYml, "utf8")), "utf8");
 
 if (!fs.existsSync(swaggerHtmlSrc)) {
   throw new Error(`Swagger HTML not found: ${swaggerHtmlSrc}`);
