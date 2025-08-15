@@ -2,11 +2,11 @@
   "name": "api-explorer",
   "type": "module",
   "devDependencies": {
-    "dotenv": "^16.4.5",
-    "fs-extra": "^11.2.0",
-    "http-server": "^14.1.1",
-    "shx": "^0.3.4",
-    "swagger-ui-dist": "^5"
+    "dotenv": "16.4.5",
+    "fs-extra": "11.2.0",
+    "http-server": "14.1.1",
+    "shx": "0.3.4",
+    "swagger-ui-dist": "5"
   },
   "scripts": {
     "clean": "shx rm -rf dist",
