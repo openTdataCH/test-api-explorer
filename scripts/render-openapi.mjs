@@ -80,9 +80,8 @@ await fse.ensureDir(outDir);
 if (!fs.existsSync(srcYml)) throw new Error(`Template not found: ${srcYml}`);
 await fse.writeFile(outYml, substitute(await fse.readFile(srcYml, "utf8")), "utf8");
 
-if (!fs.existsSync(swaggerHtmlSrc)) {
-  throw new Error(`Swagger HTML not found: ${swaggerHtmlSrc}`);
-}
-await fse.copy(swaggerHtmlSrc, swaggerHtmlOut);
+// Write HTML
+if (!fs.existsSync(srcHtml)) throw new Error(`Swagger HTML not found: ${srcHtml}`);
+await fse.writeFile(outHtml, substitute(await fse.readFile(srcHtml, "utf8"), { requireAll: false }), "utf8");
 
-console.log(`Built ${api} → ${outSpec} + ${swaggerHtmlOut}`);
+console.log(`Built ${api} → ${outYml} + ${outHtml}`);
